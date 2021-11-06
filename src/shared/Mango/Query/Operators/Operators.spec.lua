@@ -1,0 +1,20 @@
+return function()
+    ---@module Operators
+    local Operators = require(script.Parent)
+    describe("Test operation syntax checker", function()
+        SKIP()
+        it("$eq has operator syntax", function()
+            local isOperator = Operators:HasOperatorSyntax("$eq")
+            expect(isOperator).to.equal(true)
+        end)
+        it("bridges$ is not an operator", function()
+            local isOperator = Operators:HasOperatorSyntax("bridges$")
+            expect(isOperator).to.equal(false)
+        end)
+        it("Check if it's an operation", function()
+            local operation = {["$eq"]=5}
+            local isOperation = Operators:TableIsOperation(operation)
+            expect(isOperation).to.equal(true)
+        end)
+    end)
+end
