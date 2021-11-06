@@ -29,7 +29,29 @@ function Expressions:Evaluate(data,expression,expressionData: ExpressionData?)
     return expression
 end
 
+----------- EQUIVALENT TABLE
+
+---Returns true for any tables to be equivalent to its copy
+function Expressions:EquivalentTable(t1: {any},t2: {any}) : boolean
+    local success,result =  pcall(function() -- call in pcall incase any errors
+        for key,value in pairs(t1) do
+            if typeof(value)=="table" then -- recursively search through the table
+                if not Expressions:EquivalentTable(value,t2[key]) then
+                    return false
+                end
+            else
+                if t1[key] ~= t2[key] then
+                    return false
+                end    
+            end   
+        end 
+        return true
+    end) 
+    return result == true and success
+end 
+
 ----------- FIELD PATH
+
 ---Returns true based on whether or not the value is supposed to be a field path
 ---@param value string
 ---@return boolean

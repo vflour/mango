@@ -37,32 +37,28 @@ function GroupInputEntries(input,query)
         local groupId = expressions:Evaluate(entry,query.id) 
         groups[EquivalentIndex(groups,groupId)] = {}
     end
+    return groups
 end
 
 function EquivalentIndex(groupTable,indexTable)
+    if typeof(indexTable) ~= "table" then return indexTable end -- shouldnt be a table
     for groupIndex, groupData in pairs(groupTable) do
         -- group data has to be a table so that it may be compared to indexTable
         if typeof(groupData)~="table" then continue end
-        if EquivalentTable(groupData,indexTable) then -- return the original index if the tables are equivalent
+        if expressions:EquivalentTable(groupIndex,indexTable) then -- return the original index if the tables are equivalent
             return groupIndex
         end
     end
     -- the index table is a new table
     return indexTable
 end    
-function EquivalentTable(t1: {any},t2: {any}) : boolean
-    for key,value in pairs(t1) do
-        if typeof(value)=="table" then -- recursively search through the table
-            if not EquivalentTable(value,t2[key]) then
-                return false
-            end
-        else
-            if value ~= t2[key] then
-                return false
-            end    
-        end   
-    end 
-    return true
-end    
+   
+-- LOOKUP STAGE:
+-- (https://docs.mongodb.com/manual/reference/operator/aggregation/lookup/#mongodb-pipeline-pipe.-lookup)
+--- Performs a left outer join on another collection and stores it in an array
+Stages["$lookup"] = function(input,query)
+
+
+end
 
 return Stages
