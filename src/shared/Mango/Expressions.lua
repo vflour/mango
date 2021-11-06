@@ -25,7 +25,8 @@ function Expressions:Evaluate(data,expression,expressionData: ExpressionData?)
     -- case 2: expression is a string and it could be a field path, a variable or just a literal       
     elseif typeof(expression) == "string" then
         if Expressions:IsFieldPath(expression) then
-            return Expressions:GetFieldPathValue(data,expression)
+            local value = Expressions:GetFieldPathValue(data,expression)
+            return value -- you want to return the value *only*
         elseif Expressions:IsVariable(expression) then
             return Expressions:GetVariable(data,expression)    
         end
@@ -73,21 +74,32 @@ end
 ---@param value string
 ---@return boolean
 function Expressions:IsFieldPath(value:string): boolean
-    return string.match(value,"^%$%w*") ~= nil
+    return Expressions:StartsWithDollarSign(value)
 end
 
 ---Gets the value resulting from a field path in the entry
 ---@param data any
 ---@param path string
----@return any
+---@return any,string,any
 function Expressions:GetFieldPathValue(data:any,path:string)
+    assert(Expressions:IsFieldPath(path),tostring(path).." is not a valid path")
     path = string.gsub(path,"^%$","") -- remove the $ prefix
     local splitPath = string.split(path,".")
-    local value = data
+    local value,index,holder = data,nil,nil
     for i, childPath in ipairs(splitPath) do
+        holder = value
         value = value[childPath]
+        index = childPath       
     end
-    return value
+    return value,index,holder
+end
+
+----------- VALUE ASSERTIONS
+function Expressions:CantHaveDollarSign(value)
+    assert(not Expressions:StartsWithDollarSign(value),"Expression must not start with the '$' character")
+end
+function Expressions:StartsWithDollarSign(value)
+    return string.match(value,"^%$%w*") ~= nil
 end
 
 ----------- VARIABLES

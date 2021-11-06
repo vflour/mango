@@ -1,5 +1,7 @@
+local Dependencies = require(script.Parent.Settings).Dependencies
+--- @module Table
+local Table = Dependencies.Table
 --- @module Operators
---local operators = require "Operators"
 local operators = require(script.Operators)
 
 ---Returns a filtered version of the collection based on the search query
@@ -10,12 +12,16 @@ function Query(collection,query)
     local output = {}
     for index,entry in pairs(collection) do
         if EvaluateEntry(entry, query) then
-            table.insert(output,entry)
+            table.insert(output,Table.deepCopy(entry))
         end
     end    
     return output
 end
 
+---Returns true if the entry matches the query
+---@param entry any
+---@param query any
+---@return boolean
 function EvaluateEntry(entry, query)
     local valid = true
     -- loop through the query's fields and values

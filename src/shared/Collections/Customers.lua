@@ -8,8 +8,8 @@ Customers.Data ={
         Friends={2,3},
         Favourites = {
             Book="book_1"
-        }
-        
+        },
+        Wallet = {},
     },
     {
         id=2,
@@ -19,6 +19,7 @@ Customers.Data ={
         Favourites = {
             Book="book_1"
         },
+        Wallet = "Nonetendo",
         Inviter=1,
     },
     {
@@ -38,7 +39,8 @@ Customers.Data ={
         Friends={},
         Favourites = {
             Book="book_3"
-        }
+        },
+        Wallet={"Steam","Paypal"}
     }
 }
 return Customers

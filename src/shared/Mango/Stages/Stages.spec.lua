@@ -119,4 +119,96 @@ return function()
             expect(output[2].Inviter[1].FirstName).to.equal("John")
         end)
     end)
+
+    describe("Project", function()
+        it("Exclusion",function()
+            local query = {
+                FirstName = 0,
+                group = false
+            }
+            local output = Stages["$project"](collection,query)
+            expect(output[1].FirstName).to.never.be.ok()
+            expect(output[1].LastName).to.be.ok()
+            expect(output[1].group).to.never.be.ok()
+        end)
+        it("Inclusion",function()
+            local query = {
+                FirstName = 1,
+            }
+            local output = Stages["$project"](collection,query)
+            expect(output[1].FirstName).to.be.ok()
+            expect(output[1].LastName).to.never.be.ok()
+        end)
+        it("Redefinition, Inclusion",function()
+            local query = {
+                FirstName = 1,
+                Company = "$Company.Name",
+                group = false,
+            }
+            local output = Stages["$project"](collection,query)
+            expect(output[1].FirstName).to.be.ok()
+            expect(output[1].LastName).to.never.be.ok()
+            expect(output[1].group).to.never.be.ok()
+            expect(output[1].Company).to.equal("Verizon")
+        end)
+    end)
+
+    describe("Unwind", function()
+        local collection = Collection.Get("Customers")
+        it("Test if output",function()
+            local query = {
+                path="$Friends"
+            }
+            local output = Stages["$unwind"](collection._data,query)
+            expect(output[1]).to.be.ok()
+        end)
+        it("Test individual entries",function()
+            local query = {
+                path="$Friends"
+            }
+            local output = Stages["$unwind"](collection._data,query)
+            expect(output[1].id).to.equal(1)
+            expect(output[1].Friends).to.equal(2)
+            expect(output[2].id).to.equal(1)
+            expect(output[2].Friends).to.equal(3)
+            -- it should be id 2 since theres no more friends in id 1
+            expect(output[3].id).to.equal(2)
+        end)
+        it("Include array index",function()
+            local query = {
+                path="$Friends",
+                includeArrayIndex = "FriendLink"
+            }
+            local output = Stages["$unwind"](collection._data,query)
+            expect(output[1].id).to.equal(1)
+            expect(output[1].FriendLink).to.equal(2)
+            expect(output[2].id).to.equal(1)
+            expect(output[2].FriendLink).to.equal(3)
+            -- test original array
+            expect(output[1].Friends).to.be.a("table")
+        end)
+        it("Exclude Null and Empty Arrays",function()
+            local query = {
+                path="$Wallet",
+            }
+            local output = Stages["$unwind"](collection._data,query)
+
+            expect(output[1].id).to.equal(2) -- added in because it's not an array
+            expect(output[2].id).to.equal(4)
+        end)
+        it("Preserve Null and Empty Arrays",function()
+            local query = {
+                path="$Wallet",
+                preserveNullAndEmptyArrays=true,
+            }
+            local output = Stages["$unwind"](collection._data,query)
+            expect(output[1].id).to.equal(1) -- first entry should exist
+            expect(output[2].id).to.equal(2) -- second entry should exist
+            expect(output[3].id).to.equal(3) -- second entry should also exist
+
+            expect(output[4].id).to.equal(4)
+            expect(output[4].Wallet).to.equal("Steam")
+            expect(output[5].Wallet).to.equal("Paypal")
+        end)
+    end)
 end

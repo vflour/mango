@@ -28,5 +28,18 @@ return function()
             local result = customers:Aggregate(pipeline)
             expect(result[1].FirstName).to.equal("Echyzi")
         end)
+        it("Get John Shedletsky's friends",function()
+            local pipeline = {
+                {["$match"]={FirstName="John",LastName="Shedletsky"}},
+                {["$unwind"]={path="$Friends"}},
+                {["$lookup"]={from="Customers",localField="$Friends",foreignField="$id",as="Friends"}}
+            }
+            local result = customers:Aggregate(pipeline)
+            expect(result[1].Friends).to.be.ok()
+            expect(result[2].Friends).to.be.ok()
+
+            expect(result[1].Friends[1].FirstName).to.equal("Muriel")
+            expect(result[2].Friends[1].FirstName).to.equal("Pepper")
+        end)
     end)
 end
