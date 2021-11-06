@@ -1,7 +1,7 @@
 
 --local Depends = require(game.ReplicatedStorage.Scripts:WaitForChild("Depends"))("Assert")
 --- @module Assert
-local assertions = require(script.Parent.Parent.Assert)
+local assertions = require(script.Parent.Settings).Dependencies.Assert
 --local assertions = Depends.Assert
 
 type Operator ={

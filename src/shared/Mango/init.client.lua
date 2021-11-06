@@ -80,34 +80,6 @@ function Cache:_evictCollections()
 	print(self._collections,self._order) -- debug
 end
 
------------------------------ COLLECTION OBJECT
-
----@class Collection
-local Collection = {}
-Collection.__index = Collection
-
---- Finds all results in the collection using the filter
----@param filter any
-function Collection:Find(filter)
-	assertions.assertType(filter,"table")
-	return Query(self._data,filter)
-end
-
----Similar to Find, but will throw an error if there is not exactly one entry found
----@param filter any
----@return any
-function Collection:FindOne(filter)
-	local findResult = Database:Find(filter)
-	-- throw error if findResult is not one
-	assertions.assert(#findResult==1,"Too many entries found")
-	assertions.assert(#findResult==0,"No entries found")
-	return findResult[1]
-end
-
-function Collection:Aggregate()
-	
-end	
-
 ----------------------------- DATABASE SCHEMA VALIDATION
 ---Check collection for any entries
 ---@param collection any collection data

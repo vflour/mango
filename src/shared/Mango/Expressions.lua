@@ -2,8 +2,12 @@ local Expressions = {}
 ---@class ExpressionData
 type ExpressionData = {
     Variables : {[string]:any},
-
 }
+---@class Expression
+type Expression = {
+    [string]:{}|string
+}|string
+
 ---Evaluates the expression to return the retrieved data from the expression 
 ---@param data any
 ---@param expression any

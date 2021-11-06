@@ -3,6 +3,8 @@ local Stages = {}
 local expressions = require(script.Parent.Expressions)
 --- @module Query
 local Query = require(script.Parent.Query)
+--- @module Assert
+local assertions = require(script.Parent.Settings).Dependencies.Assert
 
 -- WHERE STAGE:
 -- (https://docs.mongodb.com/manual/tutorial/query-documents/#std-label-read-operations-query-argument)
@@ -14,7 +16,11 @@ end
 -- GROUP STAGE:
 -- (https://docs.mongodb.com/manual/reference/operator/aggregation/group/#mongodb-pipeline-pipe.-group)
 --- Groups the input entries specified in the id field by following expression 
-Stages["$group"] = function(input,query)
+type groupQuery = {
+    id : any,
+    [string] : any,
+}
+Stages["$group"] = function(input,query:groupQuery)
     assert(query.id,"No id field to group by with")
     -- create a groups subtable
     local groups = GroupInputEntries(input,query)
@@ -53,11 +59,37 @@ function EquivalentIndex(groupTable,indexTable)
     return indexTable
 end    
    
+
+type lookupQuery = {
+    from: string,
+    localField: string,
+    foreignField: string,
+    as: string,
+}
 -- LOOKUP STAGE:
 -- (https://docs.mongodb.com/manual/reference/operator/aggregation/lookup/#mongodb-pipeline-pipe.-lookup)
 --- Performs a left outer join on another collection and stores it in an array
-Stages["$lookup"] = function(input,query)
+Stages["$lookup"] = function(input,query:lookupQuery)
+    -- type validation
+    assertions.assertType(query.from,"string")
+    assertions.assertType(query.localField,"string")
+    assertions.assertType(query.foreignField,"string")
+    assertions.assertType(query.as,"string")
 
+    -- first get the collection
+    local Collection = require(script.Parent.Collection)
+    local collection = Collection.Get(query.from)
+    -- look through input
+    local output = {} 
+    for i,entry in ipairs(input) do
+        local field = expressions:Evaluate(entry,query.localField)
+        
+        -- TODO: use indexes because this method is depressingly slow
+        for i,foreignEntry in ipairs(collection) do
+            local foreignField = expressions:Evaluate(foreignEntry,query.foreignField)
+
+        end
+    end
 
 end
 
