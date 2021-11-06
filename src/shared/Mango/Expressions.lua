@@ -54,6 +54,19 @@ function Expressions:EquivalentTable(t1: {any},t2: {any}) : boolean
     return result == true and success
 end 
 
+--- Returns true for any equivalent tables or values.
+---@param a any
+---@param b any
+---@return boolean
+function Expressions:AreEquivalent(a,b)
+    if typeof(a)~=typeof(b) then return false end
+    if typeof(a) == "table" then
+        return Expressions:EquivalentTable(a,b)
+    else
+        return a == b
+    end
+end
+
 ----------- FIELD PATH
 
 ---Returns true based on whether or not the value is supposed to be a field path

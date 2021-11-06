@@ -4,6 +4,8 @@ local assertions = require(script.Parent.Settings).Dependencies.Assert
 local Query = require(script.Parent.Query)
 --- @module Settings
 local Settings = require(script.Parent.Settings)
+--- @module Stages
+local Stages = require(script.Parent.Stages)
 
 ---@class Collection
 local Collection = {}
@@ -40,8 +42,16 @@ function Collection:FindOne(filter)
 	return findResult[1]
 end
 
-function Collection:Aggregate()
-	
+function Collection:Aggregate(pipeline)
+	local input = self._data
+	for i,stage in ipairs(pipeline) do
+		-- check stage name
+		local stageName = next(stage)
+		assertions.assert(Stages[stageName],tostring(stageName).." is not a valid pipeline stage")
+		-- perform stage
+		input = Stages[stageName](input,stage[stageName])
+	end
+	return input
 end	
 
 return Collection

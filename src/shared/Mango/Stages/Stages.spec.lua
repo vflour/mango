@@ -1,6 +1,8 @@
 return function()
     ---@module Stages
     local Stages = require(script.Parent)
+    ---@module Collection
+    local Collection = require(script.Parent.Parent.Collection)
     ---@module Expressions
     local expressions = require(script.Parent.Parent.Expressions)
 
@@ -65,6 +67,56 @@ return function()
             local output = Stages["$group"](collection,query)
             expect(#output).to.be.equal(3)
             expect(output[1].id.Company.Name).to.be.equal(output[1].id.CompanyName)
+        end)
+        it("Accumulator grouping",function()
+            local query = {
+                id={CompanyName="$Company.Name"},
+                ["$sum"]="$group",
+            }
+            local groups = Stages:GroupInputEntries(collection,query)
+            expect(groups[next(groups)]["$sum"][1]).to.equal(12)
+        end)
+        it("Accumulators",function()
+            local query = {
+                id={CompanyName="$Company.Name"},
+                ["$min"]="$group",
+                ["$max"]="$group",
+                ["$avg"]="$group",
+                ["$sum"]="$group",
+            }
+            local output = Stages["$group"](collection,query)
+    
+            expect(output[1]["min"]).to.equal(2)
+            expect(output[1]["max"]).to.equal(12)
+            expect(output[1]["avg"]).to.equal(7)
+            expect(output[1]["sum"]).to.equal(14)
+        end)
+    end)
+
+    describe("Lookup", function()
+        local collection = Collection.Get("Customers")
+        it("Foreign collection lookup", function()
+            local query = {
+                from="Books",
+                localField="$Favourites.Book",
+                foreignField="$id",
+                as="FavouriteBook"
+            }
+            local output = Stages["$lookup"](collection._data,query)
+            expect(output[1].FavouriteBook[1]).to.be.ok()
+            expect(output[1].FavouriteBook[1].Title).to.be.ok()
+            expect(output[1].FavouriteBook[1].Title).to.equal("Lolz")
+        end)
+        it("Self join lookup", function()
+            local query = {
+                from="Customers",
+                localField="$Inviter",
+                foreignField="$id",
+                as="Inviter"
+            }
+            local output = Stages["$lookup"](collection._data,query)
+            expect(output[2].Inviter[1]).to.be.ok()
+            expect(output[2].Inviter[1].FirstName).to.equal("John")
         end)
     end)
 end

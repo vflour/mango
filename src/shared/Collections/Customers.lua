@@ -9,6 +9,7 @@ Customers.Data ={
         Favourites = {
             Book="book_1"
         }
+        
     },
     {
         id=2,
@@ -17,7 +18,8 @@ Customers.Data ={
         Friends={1},
         Favourites = {
             Book="book_1"
-        }
+        },
+        Inviter=1,
     },
     {
         id=3,
@@ -26,7 +28,8 @@ Customers.Data ={
         Friends={1},
         Favourites = {
             Book="book_2"
-        }
+        },
+        Inviter=1,
     },
     {
         id=4,

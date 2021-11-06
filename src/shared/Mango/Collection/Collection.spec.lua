@@ -19,4 +19,14 @@ return function()
             expect(#results).to.equal(2)
         end)
     end)
+    describe("Customer collection aggregation",function()
+        local customers = Collection.Get("Customers")
+        it("Get the customer with the id 4 and with name Echyzi",function()
+            local pipeline = {
+                {["$match"]={FirstName="Echyzi",id=4}}
+            }
+            local result = customers:Aggregate(pipeline)
+            expect(result[1].FirstName).to.equal("Echyzi")
+        end)
+    end)
 end
